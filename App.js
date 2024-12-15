@@ -28,6 +28,16 @@ app.use(multer({storage: profileImgDisk.fileStorage , fileFilter: profileImgDisk
 app.use('/user',userRoutes);
 app.use('/notfication',isAdmin,notficationRoutes);
 
+app.use((error,req,res,next)=>{
+    const msg = error.msg || 'Something went wrong';
+    const status= error.statusCode || 500;
+    const data = error.data || null;
+    res.status(status).json({
+        msg: msg,
+        data: data,
+    });
+});
+
 sequelize.authenticate()
 .then(()=>{
     // sequelize.sync({force: true})

@@ -14,6 +14,7 @@ const mainAdmin = {
         verified: true,
         img_url: null,
 };
+
 const  initAdmin =  (cb)=>{
     User.findAll({where:{email: mainAdmin.email , first_name: mainAdmin.first_name}})
     .then(users=>{

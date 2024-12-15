@@ -18,7 +18,10 @@ exports.profile = (req,res,next)=>{
 exports.update = (req,res,next) => {
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ msg: errors.array()[0].msg , filed: errors.array()[0].path});
+        const err = new Error();
+        err.msg = errors.array()[0].msg;
+        err.statusCode = 422;
+        next(err,req,res,next);
     }
     User.findAll({where: {id: req.user.id,email:req.user.email}})
     .then(users=>{
@@ -31,8 +34,9 @@ exports.update = (req,res,next) => {
         user.save();
         res.status(201).json({msg: 'USER ACCOUNT UPDATED SUCCESSFULL: ',});
     }).catch(err=>{
-        console.log(err);
-        res.status(421).json({msg: 'SOMETHING WENT WRONG PLEASE TRY AGAIN LATER'});
+        // console.log(err);
+        // res.status(421).json({msg: 'SOMETHING WENT WRONG PLEASE TRY AGAIN LATER'});
+        next(new Error(),req,res,next);
     })
 };
 
@@ -50,7 +54,8 @@ exports.uploadProfilePictuer = (req,res,next)=>{
             user.save();
             res.json({msg:'USER PICTUER SUCCESSFUL UPDATED'});
         }).catch(err=>{
-            console.log(err);
+            // console.log(err);
+            next(new Error(),req,res,next);
         })
     }
 };
@@ -60,5 +65,5 @@ exports.destry = (req,res,next)=>{
     User.findAll({where:{id: req.user.id}})
     .then(users=>{return users[0]})
     .then(user=>{ user.destroy(); res.json({msg: 'THE ACCOUNT HAS BEEN DELETED'})})
-    .catch(err=>{console.log(err)});
+    .catch(err=>{next(new Error(),req,res,next);});
 };

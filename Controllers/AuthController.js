@@ -10,16 +10,20 @@ const jwtConstant = require('../config/main').jwt;
 exports.signUp = (req,res,next)=>{
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ msg: errors.array()[0].msg , filed: errors.array()[0].path});
+        const err = new Error();
+        err.msg = errors.array()[0].msg;
+        err.statusCode = 422;
+        next(err,req,res,next);
     }
     const {first_name , last_name , email , gender , birth_day , password} = req.body;
     User.findAll({where: {email: email}})
     .then(users=>{
         if(users.length){
-            // res.send('this email is already exsist');
-            res.status(422).json({msg: 'THIS EMAIL IS ALREADY EXSIST'});
+            const err = new Error();
+            err.msg = 'this emial is already exist';
+            err.statusCode = 421;
+            next(err,req,res,next);
         }else{
-            // res.send('this email dosent exsist');
             bcrypt.hash(password , bycryptConstant.saltyHash)
             .then((hashedPasswrod)=>{
                 return User.create({
@@ -49,11 +53,14 @@ exports.signUp = (req,res,next)=>{
                 });
             })
             .catch(err=>{
-                console.log(err);
+                // console.log(err);
+                next(err,req,res,next);
             });        
         }
     })
-    .catch(err=>console.log(err));
+    .catch(err=>{
+        next(err,req,res,next);
+    });
 };
 
 
@@ -61,7 +68,10 @@ exports.signUp = (req,res,next)=>{
 exports.logIn = (req,res,next)=>{
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ msg: errors.array()[0].msg , filed: errors.array()[0].path});
+        const err = new Error();
+        err.msg = errors.array()[0].msg;
+        err.statusCode = 422;
+        next(err,req,res,next);
     }
     const { email , password } = req.body;
     User.findAll({where: {email: email}})
@@ -91,14 +101,16 @@ exports.logIn = (req,res,next)=>{
                 }
             })
             .catch(err=>{
-                console.log(err);
+                // console.log(err);
+                next(err,req,res,next);
             });
         }else{
             res.status(422).json({msg: 'email or password no match'});
         }
     })
     .catch(err=>{
-        console.log(err);
+        // console.log(err);
+        next(err,req,res,next);
     });
 };
 
@@ -112,7 +124,10 @@ exports.auth = (req,res,next)=>{
         try{
             decoded = jwt.verify(token,jwtConstant.secertKey);
         }catch(err){    
-            res.status(421).json({msg: 'NOT AUTHORIZED , PLEASE LOG IN AGIAN'});
+            const error = new Error();
+            error.statusCode = 421;
+            error.msg = 'NOT AUTHORIZED , PLEASE LOG IN AGIAN';
+            next(error,req,res,next);
             return;
         }
         User.findAll({where: {id: decoded.id ,email: decoded.email}, })//where:{email: decoded.email}
@@ -120,16 +135,19 @@ exports.auth = (req,res,next)=>{
             req.user = users[0];
             req.userId = users[0].id;
             next();
-            // res.json({msg: 'welcome', data: });
         })
         .catch(err=>{
-            console.log(err);
-            res.status(421).json({msg: 'NOT AUTHORIZED , PLEASE LOG IN AGIAN'});
+            const error = new Error();
+            error.statusCode = 421;
+            error.msg = 'NOT AUTHORIZED , PLEASE LOG IN AGIAN';
+            next(error,req,res,next);
         });
     }else{
-        res.status(421).json({msg: 'NOT AUTHORIZED , PLEASE LOG IN AGIAN'});
+        const error = new Error();
+        error.statusCode = 421;
+        error.msg = 'not authorization , pleas send a authorizition header';
+        next(error,req,res,next);
     }
-
 };
 
 
@@ -140,10 +158,14 @@ exports.isAdmin = (req,res,next)=>{
         if(admins.length){
             next();
         }else{
-            res.status(403).json({msg:'ACCESS DENY'});
+            // res.status(403).json({msg:'ACCESS DENY'});
+            const err = new Error();
+            err.statusCode = 403;
+            err.msg = 'access deny';
+            throw err;
         }
     })
     .catch(err=>{
-        console.log(err);
+        next(err,req,res,next);
     });
 };

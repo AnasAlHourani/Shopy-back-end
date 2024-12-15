@@ -4,7 +4,10 @@ const Notfication = require('../Models/Notfication');
 exports.create = (req,res,next)=>{
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ msg: errors.array()[0].msg , filed: errors.array()[0].path});
+        const err = new Error();
+        err.msg = errors.array()[0].msg;
+        err.statusCode = 422;
+        next(err,req,res,next);
     }
     const {title , desc  } = req.body;
     Notfication.create({
@@ -17,7 +20,7 @@ exports.create = (req,res,next)=>{
             msg:'THE NOTFICATION HAS BEEN CREATED',
         });
     }).catch(err=>{
-        console.log(err);
+        next(new Error(),req,res,next);
     });
 };
 
@@ -25,7 +28,10 @@ exports.create = (req,res,next)=>{
 exports.update = (req,res,next)=>{
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ msg: errors.array()[0].msg , filed: errors.array()[0].path});
+        const err = new Error();
+        err.msg = errors.array()[0].msg;
+        err.statusCode = 422;
+        next(err,req,res,next);
     }
     const { title,desc, not_id } = req.body;
     Notfication.findAll({where:{id: not_id}})
@@ -43,7 +49,7 @@ exports.update = (req,res,next)=>{
             })
         }
     }).catch(err=>{
-        console.log(err);
+        next(new Error(),req,res,next);
     });
 };
 
@@ -51,7 +57,10 @@ exports.update = (req,res,next)=>{
 exports.delete = (req,res,next)=>{
     const errors = validationResult(req);
     if (!errors.isEmpty()) {
-        return res.status(400).json({ msg: errors.array()[0].msg , filed: errors.array()[0].path});
+        const err = new Error();
+        err.msg = errors.array()[0].msg;
+        err.statusCode = 422;
+        next(err,req,res,next);
     }
     Notfication.findAll({where:{id: req.params.id}})
     .then(nots=>{
@@ -60,7 +69,7 @@ exports.delete = (req,res,next)=>{
             res.status(200).json({msg:'DELETED SUCCESSFULLY'});
         }
     }).catch(err=>{
-        console.log(err);
+        next(new Error(),req,res,next);
     })
 };
 
@@ -73,6 +82,6 @@ exports.get = (req,res,next)=>{
             notfications: nots
         })
     }).catch(err=>{
-        console.log(err);
+        next(new Error(),req,res,next);
     });
 };
