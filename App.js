@@ -10,6 +10,8 @@ const profileImgDisk = require('./config/File').profileImgDisk;
 const authRoutes = require('./Routes/Auth');
 const userRoutes = require('./Routes/User');
 
+const initAdmin=  require('./Adit/initialization');
+
 
 app.use(bodyParser.json());
 const auth = require('./Controllers/AuthController').auth;
@@ -30,7 +32,7 @@ sequelize.authenticate()
     // sequelize.sync({force: true})
     sequelize.sync()
     .then(()=>{
-        app.listen(appPort);console.log('APP IS RUNNING ON URL: http://localhost:'+appPort+'/');
+        initAdmin(()=>{ app.listen(appPort);console.log('APP IS RUNNING ON URL: http://localhost:'+appPort+'/');});
     }).catch(err=>{
         console.log('ERROR IN DB SEQUELIZE CONNECTION WITH SYNC');
     })

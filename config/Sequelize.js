@@ -14,6 +14,7 @@ module.exports = sequelize;
 const User = require('../Models/User');
 const Admin = require('../Models/Admin');
     User.hasMany(Admin,{ foreignKey: 'user_id' });
+    User.hasMany(Admin,{ foreignKey: 'admin_id' });
 const Notfication = require('../Models/Norfication');
     Admin.hasMany(Notfication,{ foreignKey: 'admin_id' });
 const userNotfication = require('../Models/UserNotfication');

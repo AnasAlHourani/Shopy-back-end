@@ -5,7 +5,7 @@ const Admin = sequelize.define('Admin',
     {
         active: {
             type: Sequelize.BOOLEAN,
-            default: true,
+            defaultValue: true,
         },
     }
 );
