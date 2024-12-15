@@ -5,7 +5,7 @@ const Notfication = sequelize.define('Notfication',{
     title:{
         type: Sequelize.STRING,
     },
-    description: Sequelize.TEXT,
+    desc: Sequelize.TEXT,
 });
 
 

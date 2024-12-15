@@ -3,6 +3,7 @@ const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const bycryptConstant = require('../config/main').bycrypt;
 const User = require('../Models/User');
+const Admin = require('../Models/Admin');
 const jwtConstant = require('../config/main').jwt;
 
 
@@ -129,4 +130,20 @@ exports.auth = (req,res,next)=>{
         res.status(421).json({msg: 'NOT AUTHORIZED , PLEASE LOG IN AGIAN'});
     }
 
+};
+
+
+exports.isAdmin = (req,res,next)=>{
+    const id = req.user.id;
+    Admin.findAll({where: {user_id: id}})
+    .then(admins=>{
+        if(admins.length){
+            next();
+        }else{
+            res.status(403).json({msg:'ACCESS DENY'});
+        }
+    })
+    .catch(err=>{
+        console.log(err);
+    });
 };
